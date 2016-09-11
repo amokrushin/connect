@@ -179,7 +179,7 @@ describe 'Signout', ->
           expect(req.session.amr).to.be.undefined
 
         it 'should not respond 204', ->
-          res.send.should.not.have.been.calledWith 204
+          res.sendStatus.should.not.have.been.calledWith 204
 
         it 'should redirect with state param', ->
           res.redirect.should.have.been.calledWith 303, req.query.post_logout_redirect_uri + '?state='+req.query.state
