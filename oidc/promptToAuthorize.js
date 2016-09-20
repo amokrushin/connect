@@ -4,6 +4,7 @@
 
 var qs = require('qs')
 var AccessToken = require('../models/AccessToken')
+var sessionState = require('./sessionState')
 
 /**
  * Prompt to authorize
@@ -14,6 +15,10 @@ function promptToAuthorize (req, res, next) {
   var client = req.client
   var user = req.user
   var scopes = req.scopes
+  var prompt = params.prompt
+  var responseMode = (params.response_mode && params.response_mode.trim()) ||
+    (params.response_type && ~[ 'code', 'none' ].indexOf(params.response_type.trim()))
+      ? '?' : '#'
 
   // The client is not trusted and the user has yet to decide on consent
   if (client.trusted !== true && typeof params.authorize === 'undefined') {
@@ -26,6 +31,14 @@ function promptToAuthorize (req, res, next) {
       if (exists) {
         params.authorize = 'true'
         next()
+
+      // redirect with error if consent required and prompt is "none"
+      } else if (prompt === 'none') {
+        res.redirect(req.connectParams.redirect_uri + responseMode + qs.stringify({
+          error: 'consent_required',
+          state: req.connectParams.state,
+          session_state: sessionState(req.client, req.client.client_uri, req.session.opbs)
+        }))
 
       // otherwise, prompt for consent
       } else {
