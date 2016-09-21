@@ -507,6 +507,7 @@ describe 'Authorize', ->
     before (done) ->
 
       req =
+        session: {}
         client:
           _id: 'uuid1'
         user:
