@@ -122,7 +122,11 @@ function authorize (req, res, next) {
 
   // ACCESS DENIED
   } else {
-    res.redirect(params.redirect_uri + '?error=access_denied')
+    res.redirect(params.redirect_uri + responseMode + qs.stringify({
+      error: 'access_denied',
+      state: req.connectParams.state,
+      session_state: sessionState(req.client, req.client.client_uri, req.session.opbs)
+    }))
   }
 }
 
